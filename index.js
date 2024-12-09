@@ -151,10 +151,12 @@ tasksList.addEventListener("click", (event) => {
 
   if (target.classList.contains("task-item__delete-button")) {
     const taskItem = target.closest(".task-item");
-    const taskId = taskItem.dataset.taskId;
+    const taskId = taskItem?.dataset.taskId;
 
-    modalOverlay.classList.remove("modal-overlay_hidden");
-    modalOverlay.dataset.taskId = taskId;
+    if (taskId) {
+      modalOverlay.classList.remove("modal-overlay_hidden");
+      modalOverlay.dataset.taskId = taskId;
+    }
   }
 });
 
@@ -257,9 +259,6 @@ class Snow {
 
 // делаем переключатель темы по TAB
 
-const body = document.body;
-const taskItems = document.querySelectorAll(".task-item");
-const buttons = document.querySelectorAll("button");
 let isDarkTheme = false;
 let snowInstance = null;
 
@@ -269,6 +268,7 @@ function toggleTheme() {
 
   // Применяем стили для body
   document.body.style.background = isDarkTheme ? "#24292E" : "initial";
+
   if (isDarkTheme) {
     snowInstance = new Snow();
   } else {
@@ -277,11 +277,13 @@ function toggleTheme() {
   }
 
   // Применяем стили для .task-item
+  const taskItems = document.querySelectorAll(".task-item");
   taskItems.forEach((item) => {
     item.style.color = isDarkTheme ? "#ffffff" : "initial";
   });
 
   // Применяем стили для кнопок
+  const buttons = document.querySelectorAll("button");
   buttons.forEach((button) => {
     button.style.border = isDarkTheme ? "1px solid #ffffff" : "none";
   });
