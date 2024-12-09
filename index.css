@@ -1,8 +1,8 @@
 :root {
-    --primary-color: #705fdf;
+    --primary-color: #546792;
     --text-color: #ffffff;
     --delete-button-background: #FF0000;
-    --checkbox-checked-background: #bcc7de;
+    --checkbox-checked-background: #546791;
     --checkbox-border-color: #000;
     --checkbox-text-color: #fff;
     --default-border-color: #000;
@@ -81,11 +81,13 @@ body {
 .create-task-block__button,
 .task-item__delete-button {
     cursor: pointer;
-    background-color: #5d3695;
+
+    background-color: var(--primary-color);
     color: var(--text-color);
     border: none;
     padding: 5px 20px;
     border-radius: 5px;
+  
     font-size: 1.5rem;
     line-height: 2.5rem;
 }
@@ -123,8 +125,6 @@ body {
 .task-item__delete-button:hover {
     background-color: var(--delete-button-background);
 }
-
-button.task-item__delete-button.default-button.delete-button {}
 
 .task-item__text {
     font-size: 2rem;
