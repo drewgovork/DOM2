@@ -1,9 +1,8 @@
-// массив c задачами
 const tasks = [
   {
     id: "1138465078061",
     completed: false,
-    text: "Выполнить что-то там",
+    text: "Посмотреть новый урок по JavaScript",
   },
   {
     id: "1138465078062",
@@ -16,112 +15,105 @@ const tasks = [
     text: "Выполнить ДЗ после урока",
   },
 ];
+////
+const tasksListContainer = document.querySelector(".tasks-list");
+const createTaskForm = document.querySelector(".create-task-block"); // обращение к классу
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// Создание HTML-разметки для задачи
+const createTaskItem = (taskId, taskText) => {
+  return `
+    <div class="task-item" data-task-id="${taskId}">
+      <div class="task-item__main-container">
+        <div class="task-item__main-content">
+          <form class="checkbox-form">
+            <input class="checkbox-form__checkbox" type="checkbox" id="task-${taskId}">
+            <label for="task-${taskId}"></label>
+          </form>
+          <span class="task-item__text">${taskText}</span>
+        </div>
+        <button class="task-item__delete-button default-button delete-button">Удалить</button>
+      </div>
+    </div>
+  `;
+};
 
-//
-const createTaskForm = document.querySelector(".create-task-block");
-//
-createTaskForm.addEventListener("submit", (event) => {
-  //   console.log(event);
-  event.preventDefault();
-  //
-  const { target } = event;
-  const taskNameInput = target.taskName;
-  const inputValue = taskNameInput.value.trim();
-  ////////////////////////////////////
+// Добавление задач из готового массива в DOM
+tasks.forEach((task) => {
+  tasksListContainer.innerHTML += createTaskItem(task.id, task.text);
+});
+///////////////////////////////////////////////////////////////////////////////////////////////
 
-  //Функция для отображения ошибки
-  const showError = (message) => {
-    const errorMsgBlock = document.createElement("span");
-    errorMsgBlock.className = "error-message-block";
-    errorMsgBlock.textContent = message;
-    createTaskForm.append(errorMsgBlock);
-  };
-  //переменная для удаление ошибки
+// Функция для отображения ошибки
+const showError = (message) => {
   const existingError = document.querySelector(".error-message-block");
-
-  //
-  if (existingError) {
-    existingError.remove(); // Удаляем существующее сообщение об ошибке
-  }
-
-  if (inputValue) {
-    const existingTask = tasks.find((task) => task.text === inputValue);
-    if (existingTask) {
-      showError("Задача с таким названием уже существует.");
-      return; // Завершаем выполнение функции, если задача существует
-    }
-
-    const taskId = Date.now().toString();
-    const newTask = {
-      id: taskId,
-      completed: false,
-      text: inputValue,
-    };
-    tasks.push(newTask);
-    console.log(tasks);
-
-    addTaskToDOM(newTask);
-    taskNameInput.value = ""; // Сбрасываем значение
+  if (!existingError) {
+    const errorBlock = document.createElement("span");
+    errorBlock.className = "error-message-block";
+    errorBlock.textContent = message;
+    createTaskForm.append(errorBlock);
   } else {
-    showError("Название задачи не должно быть пустым!");
+    existingError.textContent = message; // Обновляем текст, если ошибка уже есть
   }
+};
+
+// Функция для удаления блока ошибки
+const removeError = () => {
+  const existingError = document.querySelector(".error-message-block");
+  if (existingError) {
+    existingError.remove();
+  }
+};
+///////////////////////////////////////////////////////////////////////////////////////////////
+
+// Функция добавление новой задачи
+createTaskForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  //проверка на пустую строку
+  const newTaskText = event.target.taskName.value.trim();
+  if (!newTaskText) {
+    showError("Название задачи не должно быть пустым");
+    return;
+  }
+
+  //проверка на одинаковые задачи
+  const existingTask = tasks.find((task) => task.text === newTaskText);
+  if (existingTask) {
+    showError("Задача с таким названием уже существует.");
+    return;
+  }
+
+  removeError(); // Удаляем сообщение об ошибке
+
+  const newTask = {
+    id: Date.now().toString(),
+    text: newTaskText,
+    completed: false,
+  };
+  tasks.push(newTask); // добавление задачи в массив
+
+  tasksListContainer.insertAdjacentHTML(
+    "beforeend",
+    createTaskItem(newTask.id, newTask.text) // добавление задачи в HTML
+  );
+  // Применяем тёмную тему к новой задаче, если она включена
+  if (isDarkTheme) {
+    const newTaskItem = tasksListContainer.querySelector(
+      `[data-task-id="${newTask.id}"]`
+    );
+    if (newTaskItem) {
+      newTaskItem.style.color = "#ffffff"; // Стили текста
+      const deleteButton = newTaskItem.querySelector("button");
+      if (deleteButton) {
+        deleteButton.style.border = "1px solid #ffffff"; // Стили кнопки
+      }
+    }
+  }
+  event.target.taskName.value = ""; // Очистка поля ввода
 });
 
-//////
-const tasksList = document.querySelector(".tasks-list");
-
-function addTaskToDOM(task) {
-  //
-  const taskItem = document.createElement("div");
-  taskItem.className = "task-item";
-  taskItem.dataset.taskId = task.id;
-  //
-  //создаем контейнер
-  const taskMainContainer = document.createElement("div");
-  taskMainContainer.className = "task-item__main-container";
-  taskItem.append(taskMainContainer);
-
-  //пихаем новый контейнер в контейнер
-  const taskMainContent = document.createElement("div");
-  taskMainContent.className = "task-item__main-content";
-
-  //чекбокс пихаем в новый контейнер
-  const checkBoxForm = document.createElement("form");
-  checkBoxForm.className = "checkbox-form";
-
-  //чекбокс форм пихаем в чекбоксинпут
-  const checkBoxInput = document.createElement("input");
-  checkBoxInput.className = "checkbox-form__checkbox";
-  checkBoxInput.type = "checkbox";
-  checkBoxInput.id = `task-${task.id}`;
-  checkBoxInput.checked = task.completed;
-
-  //создаем лейбл и пихаем в чекбокс
-  const checkBoxLabel = document.createElement("label");
-  checkBoxLabel.htmlFor = `task-${task.id}`;
-  checkBoxForm.append(checkBoxLabel, checkBoxInput);
-
-  // пихаем спан во второй контейнер
-  const taskText = document.createElement("span");
-  taskText.className = "task-item__text";
-  taskText.textContent = task.text;
-  taskMainContent.append(checkBoxForm, taskText);
-
-  // создаем кнопку удаления в первом контейнере
-  const deleteButton = document.createElement("button");
-  deleteButton.className =
-    "task-item__delete-button default-button delete-button";
-  deleteButton.textContent = "Удалить";
-  taskMainContainer.append(taskMainContent, deleteButton);
-
-  // добавили все HTML-элементы с задачами в элемент по селектору .tasks-list
-
-  tasksList.append(taskItem);
-}
-
-tasks.forEach((task) => addTaskToDOM(task));
-
-//// создаем модальное окно
+///////////////////////////////////////////////////////////
+//Модальное окно
 const modalOverlay = document.createElement("div");
 modalOverlay.className = "modal-overlay modal-overlay_hidden";
 
@@ -146,7 +138,7 @@ modalOverlay.innerHTML = deleteModal;
 document.body.append(modalOverlay);
 
 //// добавляем обработчик событий для .tasks-list
-tasksList.addEventListener("click", (event) => {
+tasksListContainer.addEventListener("click", (event) => {
   const target = event.target;
 
   if (target.classList.contains("task-item__delete-button")) {
@@ -160,8 +152,7 @@ tasksList.addEventListener("click", (event) => {
   }
 });
 
-//
-
+////
 modalOverlay.addEventListener("click", (event) => {
   const target = event.target;
 
@@ -185,6 +176,8 @@ modalOverlay.addEventListener("click", (event) => {
     modalOverlay.classList.add("modal-overlay_hidden");
   }
 });
+
+/////////////////////////////////////////////////////////////
 
 //Очень сильно захотелось снега
 class Snow {
